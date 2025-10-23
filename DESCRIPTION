@@ -1,0 +1,10 @@
+Package: PELO
+Title: Pairwise-Elo Rating System
+Version: 0.0.0.9000
+Authors@R: 
+    person("K.H.", "Wong", , "kinhang@wayne.edu", role = c("aut", "cre"))
+Description: Compute Elo ratings (classical/pairwise), conduct likelihood ratio test to conclude weak/strong intransitivity.
+License: `use_mit_license()`
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
