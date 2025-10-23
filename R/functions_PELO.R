@@ -7,6 +7,18 @@
 #' @export
 p_1win2___KK2 <- function(p1_r, p2_r, p1_pw, draw){return((10^(p1_r/400))/((10^(p1_r/400))+draw+(10^((p2_r-p1_pw)/400))))}
 
+#' Update the ratings and pairwise advantage of player 1 and player 2
+#'
+#' @param p1_r Rating of player 1
+#' @param p2_r Rating of player 2
+#' @param p1_pw Pairwise advantage of player 1 over player 2
+#' @param p2_pw Pairwise advantage of player 2 over player 1 (should be p2_pw = -p1_pw)
+#' @param gameresult Game result (0/1)
+#' @param K Parameter K
+#' @param K2 Parameter K2
+#' @param draw Parameter draw
+#' @return The updated ratings and pairwise advantages: c(p1_r_new, p2_r_new, p1_pw_new, p2_pw_new)
+#' @export
 rating_pairwise_update___KK2 <- function(p1_r, p2_r, p1_pw, p2_pw, gameresult, K, K2, draw){
 
   p1_r_new <- p1_r
@@ -28,6 +40,15 @@ rating_pairwise_update___KK2 <- function(p1_r, p2_r, p1_pw, p2_pw, gameresult, K
 
 }
 
+#' Obtain the negative log likelihood under Elo/P-Elo
+#'
+#' @param KK2d Parameters to be used in this calculation
+#' @param elo_type Elo/P-Elo
+#' @param data Game history of all players
+#' @param elo_rat_KK2 Current ratings and pairwise advantages of all players
+#' @param output Type of output: 'negloglik' or 'all' 
+#' @return The negative log likelihood under Elo/P-Elo
+#' @export
 get_negloglik___KK2 <- function(KK2d, elo_type, data, elo_rat_KK2, output){
 
   df <- data
@@ -90,6 +111,15 @@ get_negloglik___KK2 <- function(KK2d, elo_type, data, elo_rat_KK2, output){
 
 }
 
+#' Predict a single game result given players' ratings and pairwise advantage
+#'
+#' @param p1_rating Rating of player 1
+#' @param p2_rating Rating of player 2
+#' @param p1_pairwise_p2 Pairwise advantage of player 1 over player 2
+#' @param draw The parameter for draw games
+#' @param prob Return the winning probability if TRUE, return game result prediction if FALSE
+#' @return The LRT statistic and other info: c("K_mle", "KK2_mle", "nll_elo", "nll_pelo", "lrt_statistic")
+#' @export
 prediction <- function(p1_rating, p2_rating, p1_pairwise_p2, draw, prob = FALSE){
   p <- p_1win2___KK2(p1_r = p1_rating, p2_r = p2_rating, p1_pw = p1_pairwise_p2, draw = draw)
   q <- p_1win2___KK2(p1_r = p2_rating, p2_r = p1_rating, p1_pw = -p1_pairwise_p2, draw = draw)
@@ -107,6 +137,14 @@ prediction <- function(p1_rating, p2_rating, p1_pairwise_p2, draw, prob = FALSE)
   }
 }
 
+#' Obtain the optimized parameters under Elo/P-Elo
+#'
+#' @param initial_guess Initial parameters to be used
+#' @param elo_type Elo/P-Elo
+#' @param data Game history of all players
+#' @param elo_rat_KK2 Current ratings and pairwise advantages of all players
+#' @return The optimized parameters under Elo/P-Elo
+#' @export
 get_optimized_para <- function(initial_guess, elo_type, data, elo_rat_KK2){
   result <- optim(initial_guess,
                   fn = get_negloglik___KK2,
@@ -121,6 +159,13 @@ get_optimized_para <- function(initial_guess, elo_type, data, elo_rat_KK2){
   return(result)
 }
 
+#' Conduct the likelihood ratio test (LRT) to conclude strong/weak intransitivity
+#'
+#' @param initial_guess Initial parameters to be used
+#' @param data Game history of all players
+#' @param elo_rat_KK2 Current ratings and pairwise advantages of all players
+#' @return The LRT statistic and other info: c("K_mle", "KK2_mle", "nll_elo", "nll_pelo", "lrt_statistic")
+#' @export
 likelihood_ratio_test <- function(initial_guess, data, elo_rat_KK2){
   tic <- Sys.time()
 
