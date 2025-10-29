@@ -41,6 +41,36 @@ rating_pairwise_update___KK2 <- function(p1_r, p2_r, p1_pw, p2_pw, gameresult, K
 
 }
 
+#' Initialize a ratings table containing players' ratings and their pairwise advantages
+#'
+#' @param list_of_players Names of all players, user should ensure all names are syntactically safe.
+#' @param initial_ratings Initial ratings, default value is 1500
+#' @param initial_pairwise_advantages Initial pairwise advantages, default value is 0
+#' @return An initial rating table
+#' @export
+initialize_rating_table <- function(list_of_players) {
+  # Check if all player names are syntactically valid
+  if (!all(list_of_players == make.names(list_of_players))) {
+    stop("Player names are not syntactically safe. Use make.names() to transform players' names into valid strings.")
+  }
+
+  n <- length(list_of_players)
+
+  # Base data frame for players
+  elo_rating_KK2 <- data.frame(
+    Player = list_of_players,
+    Games_played = integer(n),
+    elo_rating_KK2 = rep(1500, n),
+    stringsAsFactors = FALSE
+  )
+
+  # Initial pairwise advantages: columns for each player
+  elo_rating_KK2[list_of_players] <- matrix(0, nrow = n, ncol = n)
+
+  return(elo_rating_KK2)
+}
+
+
 #' Obtain the negative log likelihood under Elo/P-Elo
 #'
 #' @param KK2d Parameters to be used in this calculation
