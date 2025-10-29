@@ -4,7 +4,11 @@
 \alias{initialize_rating_table}
 \title{Initialize a ratings table containing players' ratings and their pairwise advantages}
 \usage{
-initialize_rating_table(list_of_players)
+initialize_rating_table(
+  list_of_players,
+  initial_ratings = 1500,
+  initial_pairwise_advantages = 0
+)
 }
 \arguments{
 \item{list_of_players}{Names of all players, user should ensure all names are syntactically safe.}
