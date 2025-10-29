@@ -13,7 +13,7 @@ prediction(p1_rating, p2_rating, p1_pairwise_p2, draw, prob = FALSE)
 
 \item{p1_pairwise_p2}{Pairwise advantage of player 1 over player 2}
 
-\item{draw}{The parameter for draw games}
+\item{draw}{The parameter for draw}
 
 \item{prob}{Return the winning probability if TRUE, return game result prediction if FALSE}
 }

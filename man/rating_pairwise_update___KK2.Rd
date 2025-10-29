@@ -21,7 +21,7 @@ rating_pairwise_update___KK2(p1_r, p2_r, p1_pw, p2_pw, gameresult, K, K2, draw)
 
 \item{K2}{Parameter K2}
 
-\item{draw}{Parameter draw}
+\item{draw}{The parameter of draw}
 }
 \value{
 The updated ratings and pairwise advantages: c(p1_r_new, p2_r_new, p1_pw_new, p2_pw_new)

@@ -12,6 +12,8 @@ p_1win2___KK2(p1_r, p2_r, p1_pw, draw)
 \item{p2_r}{Rating of player 2}
 
 \item{p1_pw}{Pairwise advantage of of player 1 over player 2}
+
+\item{draw}{The parameter of draw}
 }
 \value{
 The winning probability of player 1

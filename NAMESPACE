@@ -2,6 +2,7 @@
 
 export(get_negloglik___KK2)
 export(get_optimized_para)
+export(initialize_rating_table)
 export(likelihood_ratio_test)
 export(p_1win2___KK2)
 export(prediction)

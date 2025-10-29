@@ -18,7 +18,7 @@ get_negloglik___KK2(KK2d, elo_type, data, elo_rat_KK2, output)
 \item{output}{Type of output: 'negloglik' or 'all'}
 }
 \value{
-The negative log likelihood under Elo/P-Elo
+'negloglik':The negative log likelihood under Elo/P-Elo, 'all':The negative log likelihood under Elo/P-Elo, most updated standings, previous estimated probability of each game
 }
 \description{
 Obtain the negative log likelihood under Elo/P-Elo
