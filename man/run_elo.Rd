@@ -9,7 +9,8 @@ run_elo(
   data,
   current_ratings,
   player_id_mapping,
-  new_player_initial_rating = 1500
+  new_player_initial_rating = 1500,
+  keep_history = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ run_elo(
 \item{player_id_mapping}{Dataframe with columns \code{Names} and \code{ID} mapping player names to unique IDs.}
 
 \item{new_player_initial_rating}{Numeric, initial rating assigned to any new players (default 1500).}
+
+\item{keep_history}{TRUE/FALSE, whether to keep the rating history. Memory issues may arise when the number of players and number of games are large.}
 }
 \value{
 A list containing:

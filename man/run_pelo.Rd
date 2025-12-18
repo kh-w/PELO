@@ -10,7 +10,8 @@ run_pelo(
   current_ratings,
   current_pair_adv_mat,
   player_id_mapping,
-  new_player_initial_rating = 1500
+  new_player_initial_rating = 1500,
+  keep_history = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ with row and column names corresponding to player names.}
 
 \item{new_player_initial_rating}{Numeric, the initial rating assigned to any new players
 not in the current ratings (default 1500).}
+
+\item{keep_history}{TRUE/FALSE, whether to keep the rating history. Memory issues may arise when the number of players and number of games are large.}
 }
 \value{
 A list containing:

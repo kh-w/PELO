@@ -444,6 +444,7 @@ get_negloglike_pelo <- cmpfun(function(KK2_guess, data, current_ratings, current
 #' @param current_ratings Dataframe with columns `Player` and `Ratings` for the current ratings.
 #' @param player_id_mapping Dataframe with columns `Names` and `ID` mapping player names to unique IDs.
 #' @param new_player_initial_rating Numeric, initial rating assigned to any new players (default 1500).
+#' @param keep_history TRUE/FALSE, whether to keep the rating history. Memory issues may arise when the number of players and number of games are large.
 #'
 #' @return A list containing:
 #' \describe{
@@ -465,7 +466,7 @@ get_negloglike_pelo <- cmpfun(function(KK2_guess, data, current_ratings, current
 #' # run_elo(32, df, ratings, player_id_mapping)
 #'
 #' @export
-run_elo <- cmpfun(function(K, data, current_ratings, player_id_mapping, new_player_initial_rating = 1500) {
+run_elo <- cmpfun(function(K, data, current_ratings, player_id_mapping, new_player_initial_rating = 1500, keep_history = FALSE) {
 
   K_guess <- K
   df <- data
@@ -483,7 +484,9 @@ run_elo <- cmpfun(function(K, data, current_ratings, player_id_mapping, new_play
   preds <- numeric(nrow(df))  # vector to store predicted probabilities for each match
 
   ratings_hist <- vector("list", nrow(df) + 1)  # list to store ratings after each match
-  ratings_hist[[1]] <- current_ratings           # initial ratings before any match
+  if(keep_history){
+    ratings_hist[[1]] <- current_ratings           # initial ratings before any match
+  }
 
   # Initialize ratings table
   ratings <- current_ratings
@@ -541,13 +544,15 @@ run_elo <- cmpfun(function(K, data, current_ratings, player_id_mapping, new_play
     ratings$Ratings[p1_ind] <- new_ratings[1]
     ratings$Ratings[p2_ind] <- new_ratings[2]
 
-    # Save current ratings snapshot to history
-    ratings_hist[[r + 1]] <- ratings
+    if(keep_history){
+      # Save current ratings snapshot to history
+      ratings_hist[[r + 1]] <- ratings
+    }
   }
 
   # Return final ratings, full rating history, K-factor, predictions, and updated player ID mapping
   return(list(
-    ratings = ratings_hist[[nrow(df) + 1]],
+    ratings = ratings,
     ratings_hist = ratings_hist,
     K = K_guess,
     type = "ELO",
@@ -573,6 +578,7 @@ run_elo <- cmpfun(function(K, data, current_ratings, player_id_mapping, new_play
 #' @param player_id_mapping Dataframe with columns `Names` and `ID` mapping player names to unique IDs.
 #' @param new_player_initial_rating Numeric, the initial rating assigned to any new players
 #'                                  not in the current ratings (default 1500).
+#' @param keep_history TRUE/FALSE, whether to keep the rating history. Memory issues may arise when the number of players and number of games are large.
 #'
 #' @return A list containing:
 #' \describe{
@@ -600,7 +606,7 @@ run_elo <- cmpfun(function(K, data, current_ratings, player_id_mapping, new_play
 #' # run_pelo(c(32,16), df, ratings, pair_adv_mat, player_id_mapping)
 #'
 #' @export
-run_pelo <- cmpfun(function(KK2, data, current_ratings, current_pair_adv_mat, player_id_mapping, new_player_initial_rating = 1500) {
+run_pelo <- cmpfun(function(KK2, data, current_ratings, current_pair_adv_mat, player_id_mapping, new_player_initial_rating = 1500, keep_history = FALSE) {
 
   K_guess <- KK2[1]    # Elo K-factor for ratings update
   K2_guess <- KK2[2]   # P-Elo K2-factor for pairwise advantage update
@@ -620,10 +626,14 @@ run_pelo <- cmpfun(function(KK2, data, current_ratings, current_pair_adv_mat, pl
 
   # Lists to store ratings and pairwise advantage history after each match
   ratings_hist <- vector("list", nrow(df) + 1)
-  ratings_hist[[1]] <- current_ratings
+  if(keep_history){
+    ratings_hist[[1]] <- current_ratings
+  }
 
   pair_adv_hist <- vector("list", nrow(df) + 1)
-  pair_adv_hist[[1]] <- current_pair_adv_mat
+  if(keep_history){
+    pair_adv_hist[[1]] <- current_pair_adv_mat
+  }
 
   # Initialize ratings and pairwise advantage matrix
   ratings <- current_ratings
@@ -699,20 +709,24 @@ run_pelo <- cmpfun(function(KK2, data, current_ratings, current_pair_adv_mat, pl
     new_ratings <- ratings_update_pelo(p1_r, p2_r, p1_adv_p2, K_guess, X)
     ratings$Ratings[p1_ind] <- new_ratings[1]
     ratings$Ratings[p2_ind] <- new_ratings[2]
-    ratings_hist[[r + 1]] <- ratings  # save snapshot of ratings
+    if(keep_history){
+      ratings_hist[[r + 1]] <- ratings  # save snapshot of ratings
+    }
 
     # Update pairwise advantage matrix
     new_pair_adv <- pairadv_update_pelo(p1_r, p2_r, p1_adv_p2, p2_adv_p1, K2_guess, X)
     pair_adv_mat[p1_name, p2_name] <- new_pair_adv[1]
     pair_adv_mat[p2_name, p1_name] <- new_pair_adv[2]
-    pair_adv_hist[[r + 1]] <- pair_adv_mat  # save snapshot of pairwise advantages
+    if(keep_history){
+      pair_adv_hist[[r + 1]] <- pair_adv_mat  # save snapshot of pairwise advantages
+    }
   }
 
   # Return final ratings, full history, pairwise advantages, K-factors, predictions, and updated player IDs
   return(list(
-    ratings = ratings_hist[[nrow(df) + 1]],
+    ratings = ratings,
     ratings_hist = ratings_hist,
-    pair_adv = pair_adv_hist[[nrow(df) + 1]],
+    pair_adv = pair_adv_mat,
     pair_adv_hist = pair_adv_hist,
     K = K_guess,
     K2 = K2_guess,
