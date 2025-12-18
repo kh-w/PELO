@@ -884,3 +884,115 @@ hypo_bet_scheme_value <- cmpfun(function(bookmaker_preds, bettor_preds, actual_o
 
   return(profits)
 })
+
+#' Optimize Elo K-Factor via Maximum Likelihood
+#'
+#' This function estimates the optimal Elo K-factor by minimizing the
+#' negative log-likelihood of match outcomes using one-dimensional
+#' bounded optimization.
+#'
+#' The optimization is performed using \code{\link[stats]{optim}} with
+#' the \code{"Brent"} method, which is appropriate for scalar parameters.
+#'
+#' @param data A data frame containing match results used for training
+#'   the Elo model. This object is passed directly to
+#'   \code{get_negloglike_elo}.
+#' @param initial_ratings A named numeric vector of initial Elo ratings
+#'   for all competitors.
+#' @param k_init Numeric scalar specifying the initial value of the
+#'   K-factor for optimization. Default is 30.
+#' @param lower Numeric scalar specifying the lower bound for the
+#'   K-factor. Default is -500.
+#' @param upper Numeric scalar specifying the upper bound for the
+#'   K-factor. Default is 500.
+#'
+#' @return A numeric scalar representing the optimized K-factor value.
+#'
+#' @details
+#' This function assumes the existence of a user-defined function
+#' \code{get_negloglike_elo} that computes the negative log-likelihood
+#' of observed outcomes given a K-factor, match data, and current
+#' ratings.
+#'
+#' @seealso \code{\link[stats]{optim}}
+#'
+#'
+#' @export
+optimize_elo_k <- function(
+    data,
+    initial_ratings,
+    k_init = 30,
+    lower = -500,
+    upper = 500
+) {
+  elo_optimized <- optim(
+    par = k_init,
+    fn = get_negloglike_elo,
+    method = "Brent",
+    lower = lower,
+    upper = upper,
+    data = data,
+    current_ratings = initial_ratings
+  )
+
+  return(elo_optimized$par)
+}
+
+#' Optimize PElo (K,K2)-Factors via Maximum Likelihood
+#'
+#' This function estimates the optimal pair of PElo (K,K2)-factors by minimizing
+#' the negative log-likelihood of match outcomes using bounded
+#' multi-parameter optimization.
+#'
+#' Optimization is performed using \code{\link[stats]{optim}} with the
+#' \code{"L-BFGS-B"} method, which supports box constraints for multiple
+#' parameters.
+#'
+#' @param data A data frame containing match results used for training
+#'   the PElo model. This object is passed directly to
+#'   \code{get_negloglike_pelo}.
+#' @param initial_ratings A named numeric vector of initial PElo ratings
+#'   for all competitors.
+#' @param initial_pair_adv_mat A numeric matrix representing the initial
+#'   pairwise advantage parameters.
+#' @param kk2_init Numeric vector of length two specifying the initial
+#'   values of the PElo K-factors. Default is \code{c(30, 30)}.
+#' @param lower Numeric vector of length two specifying the lower bounds
+#'   for the K-factors. Default is \code{c(-500, -500)}.
+#' @param upper Numeric vector of length two specifying the upper bounds
+#'   for the K-factors. Default is \code{c(500, 500)}.
+#'
+#' @return A numeric vector of length two containing the optimized
+#'   (K,K2)-factor values.
+#'
+#' @details
+#' This function assumes the existence of a user-defined function
+#' \code{get_negloglike_pelo} that computes the negative log-likelihood
+#' of observed outcomes given a vector of (K,K2)-factors, match data,
+#' current ratings, and a pairwise advantage matrix.
+#'
+#' @seealso \code{\link[stats]{optim}}
+#'
+#'
+#' @export
+optimize_pelo_kk2 <- function(
+    data,
+    initial_ratings,
+    initial_pair_adv_mat,
+    kk2_init = c(30, 30),
+    lower = c(-500, -500),
+    upper = c(500, 500)
+) {
+  pelo_optimized <- optim(
+    par = kk2_init,
+    fn = get_negloglike_pelo,
+    method = "L-BFGS-B",
+    lower = lower,
+    upper = upper,
+    data = data,
+    current_ratings = initial_ratings,
+    current_pair_adv_mat = initial_pair_adv_mat
+  )
+
+  return(pelo_optimized$par)
+}
